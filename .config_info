@@ -1,0 +1,108 @@
+JSCONFIGURATION
+
+//WEBPACK -> ROOT/webpack.config.js
+
+const path = require('path');
+const htmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    // search the modules in this file
+    entry: [
+        './src/js/index.js',
+        // code needed by babel to
+        // write to ES5 things like Promises
+        // which aren't ES5 native
+        'babel-polyfill'
+    ],
+    // output in this path and this filename (__dirname is current dir)
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'js/bundle.js'
+    },
+    //config per webpack-dev-server
+    devServer: {
+        // where to look for content
+        contentBase: './dist'
+    },
+    plugins: [
+        // index.html will be copyied in ./dist
+        new htmlWebpackPlugin({
+            // name of the output file
+            filename: 'index.html',
+            // source
+            template: './src/index.html'
+        })
+    ], 
+    // convert js to be readable by browsers
+    module: {
+        rules: [
+            {
+                // regexp to target all .js files
+                test: /\.js$/,
+                // regexp to excule node_modules dir
+                exclude: /node_modules/,
+                // use the babel loader specified in package.json
+                use: {
+                    loader: 'babel-loader'
+                }
+            }
+        ]
+    }
+    // non altera il codice come se fosse produzione per essere più veloce
+    //mode: 'development' -- spostato in package.json npm script
+
+};
+
+
+
+//NPM -> ROOT/package.json
+
+{
+  "name": "forkify",
+  "version": "1.0.0",
+  "description": "forkify project",
+  "main": "index.js",
+  "scripts": {
+	// non altera troppo il codice
+    "dev": "webpack --mode development"
+	// codice per produzione
+    "build": "webpack --mode production",
+    "start": "webpack-dev-server --mode development --open"
+  },
+  "author": "pietro gambro",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack-dev-server": "^3.9.0"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "babel-polyfill": "^6.26.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
+  }
+}
+
+
+
+//BABEL -> ROOT/.babelrc
+
+{
+    "presets": [
+        [
+	   // environment preset specified in dependacies in package.json
+            "env",
+            {
+                "targets": {
+                    "browsers": [
+                        "last 5 versions",
+                        "ie >= 8"
+                    ]
+                }
+            }
+        ]
+    ]
+}
